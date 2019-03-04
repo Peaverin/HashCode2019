@@ -164,6 +164,7 @@ public class Main {
     public static void main(String[] args) {
         long totalTime = 0;
         long[] totalTimes = new long[5];
+        int[] scores = new int[5];
         final String[] fileNames = new String[]{"a_example","b_lovely_landscapes","c_memorable_moments","d_pet_pictures", "e_shiny_selfies"};
         Main main = new Main();
         for (int i = 0;i<fileNames.length;i++) {
@@ -191,23 +192,35 @@ public class Main {
             //Calculate elapsed time:
             long endTime = System.nanoTime();
             long durationInNano = (endTime - startTime);  //Total execution time in nano seconds
-            long durationInSeconds = TimeUnit.NANOSECONDS.toSeconds(durationInNano);
-            totalTimes[i] = durationInSeconds;
-            totalTime += durationInSeconds;
-            System.out.println(durationInSeconds);
+            long durationInMilli = TimeUnit.NANOSECONDS.toMillis(durationInNano);
+            totalTimes[i] = durationInMilli;
+            totalTime += durationInMilli;
+
+            //Calculate score:
+            int score = 0;
+            for(int j = 0; j<solutionSlides.size()-1;j++){
+                score += solutionSlides.get(j).giveScore(solutionSlides.get(j+1));
+            }
+            scores[i] = score;
             //Output solution:
-            main.outputSolution(solutionSlides, System.getProperty("user.dir")+"/"+fileName+"_sol_" + AMOUNT +"_"+durationInSeconds +".txt");
+            main.outputSolution(solutionSlides, System.getProperty("user.dir")+"/"+fileName+"_sol_" + AMOUNT +"_"+durationInMilli +".txt");
+
+            //Print time and score:
+            System.out.println(fileName + ": " + durationInMilli + "ms | Score: " + score);
         }
-        System.out.println("Total time: " + totalTime);
+
         PrintWriter writer = null;
         try {
             writer = new PrintWriter(System.getProperty("user.dir")+"/TimesLog/Times_with_AMOUNT="+AMOUNT+".txt", "UTF-8");
             writer.println("AMOUNT = " + AMOUNT);
+            int totalScore = 0;
             for(int i = 0;i<fileNames.length;i++){
-                writer.println(fileNames[i] + ": " + totalTimes[i] + "s");
+                writer.println(fileNames[i] + ": " + totalTimes[i] + "ms | Score: " + scores[i]);
+                totalScore += scores[i];
             }
-            writer.println("Total time: " + totalTime +"s");
+            writer.println("Total time: " + totalTime + "ms | Total Score: " + totalScore);
             writer.close();
+            System.out.println("Total time: " + totalTime + "ms | Total Score: " + totalScore);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {

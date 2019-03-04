@@ -48,7 +48,7 @@ public class Slide {
         intersectionSet.retainAll(slide.tags);
         int intersection = intersectionSet.size();
         int subs1 = getTagsSize() - intersection;
-        int subs2 = getTagsSize() - intersection;
+        int subs2 = slide.getTagsSize() - intersection;
         return min(min(intersection, subs1),subs2);
     }
 
