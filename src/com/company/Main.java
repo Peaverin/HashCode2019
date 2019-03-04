@@ -1,10 +1,7 @@
 package com.company;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static sun.swing.MenuItemLayoutHelper.max;
@@ -30,12 +27,12 @@ public class Main {
             sCurrentLine = br.readLine(); //first line is size, we don't need it
             String[] splited;
             int tagsNumber;
-            List<String> tags;
+            Set<String> tags;
             int currentId = 0;
             while ((sCurrentLine = br.readLine()) != null) {
                 splited = sCurrentLine.split("\\s+"); //split by spaces
                 tagsNumber = Integer.parseInt(splited[1]);
-                tags = new ArrayList<>();
+                tags = new HashSet<>();
                 for(int i = 2; i<2+tagsNumber;i++){
                     tags.add(splited[i]);
                 }
