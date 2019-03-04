@@ -1,5 +1,5 @@
-﻿# Google Hashcode 2019 Qualification Round
-## Solution by team: Zarkram (@Peaverin, @nauquin, 
+# Google Hashcode 2019 Qualification Round
+## Solution by team: Zarkram ([@Peaverin](https://github.com/Peaverin/), [@nauQs](https://github.com/nauQs), Iván Correa)
 
 ### Algorithm: Greedy | Explanation:
 For each file:
