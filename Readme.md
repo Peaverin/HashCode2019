@@ -1,6 +1,7 @@
 # Google Hashcode 2019 Qualification Round
 ## Solution by team: Zarkram ([@Peaverin](https://github.com/Peaverin/), [@nauQs](https://github.com/nauQs), [@ivancm11](https://github.com/ivancm11))
 The code for the qualification round was originally written in python but we ported it to java as it's much faster.
+We're trying to improve it so we can practice for future challenges.
 ### Algorithm: Greedy | Explanation:
 For each file:
 1. Read file and load two lists: vertical photos and horizontal photos.
