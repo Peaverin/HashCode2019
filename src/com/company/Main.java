@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import static sun.swing.MenuItemLayoutHelper.max;
 
 public class Main {
-    public static int AMOUNT = 1000;
+    public static int AMOUNT = 100;
     /**
      * Creates the vertical photos and puts them in verticalPhotos list.
      * Creates the horizontal photos and put them in slides inside slides
@@ -176,7 +176,7 @@ public class Main {
             //Load the photos: Verticals as Photo and Horizontals as Slides
             List<Photo> verticalPhotos = new ArrayList<>();
             List<Slide> horizontalSlides = new ArrayList<>();
-            main.readInput(System.getProperty("user.dir")+"\\"+fileName+".txt", verticalPhotos, horizontalSlides);
+            main.readInput(System.getProperty("user.dir")+"/"+fileName+".txt", verticalPhotos, horizontalSlides);
 
             //Create slides from vertical photos:
             List<Slide> verticalSlides = new ArrayList<>();
@@ -199,12 +199,12 @@ public class Main {
             totalTime += durationInSeconds;
             System.out.println(durationInSeconds);
             //Output solution:
-            main.outputSolution(solutionSlides, System.getProperty("user.dir")+"\\"+fileName+"_sol_" + AMOUNT +"_"+durationInSeconds +".txt");
+            main.outputSolution(solutionSlides, System.getProperty("user.dir")+"/"+fileName+"_sol_" + AMOUNT +"_"+durationInSeconds +".txt");
         }
         System.out.println("Total time: " + totalTime);
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(System.getProperty("user.dir")+"\\TimesLog\\Times_with_AMOUNT="+AMOUNT+".txt", "UTF-8");
+            writer = new PrintWriter(System.getProperty("user.dir")+"/TimesLog/Times_with_AMOUNT="+AMOUNT+".txt", "UTF-8");
             writer.println("AMOUNT = " + AMOUNT);
             for(int i = 0;i<fileNames.length;i++){
                 writer.println(fileNames[i] + ": " + totalTimes[i] + "s");
