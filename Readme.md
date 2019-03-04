@@ -12,7 +12,7 @@ Time of algorithm increases in a linear way depending in AMOUNT parameter.
 A folder must be created before running the algorithm, with name "TimesLog". It has to be located in the same folder as the src folder. Otherwise you can erase the lines were the program creates and writes to a file in that folder.
 
 Some time and score tables using the same computer playing with the AMOUNT parameter:
-AMOUNT = 10
+AMOUNT = 10<br/>
 a_example: 3ms              | Score: 1<br/>
 b_lovely_landscapes: 3218ms | Score: 183<br/>
 c_memorable_moments: 20ms   | Score: 723<br/>
