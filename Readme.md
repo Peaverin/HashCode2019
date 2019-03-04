@@ -1,5 +1,5 @@
 # Google Hashcode 2019 Qualification Round
-## Solution by team: Zarkram ([@Peaverin](https://github.com/Peaverin/), [@nauQs](https://github.com/nauQs), Iván Correa)
+## Solution by team: Zarkram ([@Peaverin](https://github.com/Peaverin/), [@nauQs](https://github.com/nauQs), [@ivancm11](https://github.com/ivancm11))
 The code for the qualification round was originally written in python but we ported it to java as it's much faster.
 ### Algorithm: Greedy | Explanation:
 For each file:
