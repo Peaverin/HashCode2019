@@ -46,19 +46,17 @@ public class Slide {
     public int giveScore(Slide slide){
         //Intersection:
         int intersection = 0;
-        for(String tag : tags){
-            if(slide.tags.contains(tag)) intersection++;
-        }
-        //S1-S2
-        int subs1 = getTagsSize();
-        for(String tag : slide.tags){
-            if(tags.contains(tag)) subs1--;
-        }
         //S2-S1
         int subs2 = getTagsSize();
         for(String tag : tags){
-            if(slide.tags.contains(tag)) subs2--;
+            if(slide.tags.contains(tag)){
+                intersection++;
+                subs2--;
+            }
+
         }
+        //S1-S2
+        int subs1 = getTagsSize() - intersection;
         //Get the minimum
         return min(min(intersection, subs1),subs2);
     }
