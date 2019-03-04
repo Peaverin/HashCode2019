@@ -1,7 +1,9 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.Math.min;
 
@@ -22,7 +24,7 @@ public class Slide {
     }
 
     private int id1;
-    private List<String> tags;
+    private Set<String> tags;
     public Slide(Photo photo){
         isVertical = false;
         this.id0 = photo.getId();
@@ -32,11 +34,9 @@ public class Slide {
         isVertical = true;
         this.id0 = photo1.getId();
         this.id1 = photo2.getId();
-        tags = new ArrayList<>(photo1.getTags());
+        tags = new HashSet<>(photo1.getTags());
         for(String tag : photo2.getTags()){
-            if(!tags.contains(tag)){
-                tags.add(tag);
-            }
+            tags.add(tag);
         }
     }
     public int getTagsSize(){
@@ -44,20 +44,11 @@ public class Slide {
     }
 
     public int giveScore(Slide slide){
-        //Intersection:
-        int intersection = 0;
-        //S2-S1
-        int subs2 = getTagsSize();
-        for(String tag : tags){
-            if(slide.tags.contains(tag)){
-                intersection++;
-                subs2--;
-            }
-
-        }
-        //S1-S2
+        Set<String> intersectionSet = new HashSet<>(tags);
+        intersectionSet.retainAll(slide.tags);
+        int intersection = intersectionSet.size();
         int subs1 = getTagsSize() - intersection;
-        //Get the minimum
+        int subs2 = getTagsSize() - intersection;
         return min(min(intersection, subs1),subs2);
     }
 
