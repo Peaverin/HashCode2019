@@ -1,6 +1,6 @@
 # Google Hashcode 2019 Qualification Round
 ## Solution by team: Zarkram ([@Peaverin](https://github.com/Peaverin/), [@nauQs](https://github.com/nauQs), Iván Correa)
-
+The code for the qualification round was originally written in python but we ported it to java as it's much faster.
 ### Algorithm: Greedy | Explanation:
 For each file:
 1. Read file and load two lists: vertical photos and horizontal photos.
@@ -9,3 +9,6 @@ For each file:
 4. Greedy Approach: We compare each slide from the list with the last AMOUNT slides of the list, where AMOUNT is a variable parameter. When the size of the list is less than AMOUNT, we compare with every element.
 Time of algorithm increases in a linear way depending in AMOUNT parameter.
 
+A folder must be created before running the algorithm, with name "TimesLog". It has to be located in the same folder as the src folder. Otherwise you can erase the lines were the program creates and writes to a file in that folder.
+
+Some time and score tables using the same computer:
