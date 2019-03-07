@@ -35,9 +35,7 @@ public class Slide {
         this.id0 = photo1.getId();
         this.id1 = photo2.getId();
         tags = new HashSet<>(photo1.getTags());
-        for(String tag : photo2.getTags()){
-            tags.add(tag);
-        }
+        tags.addAll(photo2.getTags());
     }
     public int getTagsSize(){
         return tags.size();
