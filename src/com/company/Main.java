@@ -4,17 +4,18 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static sun.swing.MenuItemLayoutHelper.max;
+import static java.lang.Math.min;
 
 public class Main {
+
     public static int AMOUNT = 100;
+//
     /**
-     * Creates the vertical photos and puts them in verticalPhotos list.
-     * Creates the horizontal photos and put them in slides inside slides
+     * Creates the list with all vertical and horizontal photos
      * @param fileName
-     * @param verticalPhotos
+     * @param photoList
      */
-    public void readInput(String fileName, List<Photo> verticalPhotos, List<Slide> horizontalSlides){
+    public void readInput(String fileName, List<Photo> photoList, List<Photo> verticalList){
         BufferedReader br = null;
         FileReader fr = null;
 
@@ -36,106 +37,85 @@ public class Main {
                 for(int i = 2; i<2+tagsNumber;i++){
                     tags.add(splited[i]);
                 }
-                Photo currentPhoto = new Photo(currentId, tags);
-                if(splited[0].equals("H")){
-                    horizontalSlides.add(new Slide(currentPhoto));
-                }else{
-                    verticalPhotos.add(currentPhoto);
+                Photo currentPhoto = new Photo(splited[0].equals("V"), currentId, tags);
+                if(splited[0].equals("V")){
+                    //TODO: lista verticales???
+                    verticalList.add(currentPhoto);
                 }
+                photoList.add(currentPhoto);
                 currentId++;
             }
-
         } catch (IOException e) {
-
             e.printStackTrace();
-
         } finally {
-
             try {
-
                 if (br != null)
                     br.close();
-
                 if (fr != null)
                     fr.close();
-
             } catch (IOException ex) {
-
                 ex.printStackTrace();
-
             }
-
-        }
-
-    }
-
-    /**
-     * For sorting vertical photos list
-     */
-    class PhotoComparer implements Comparator<Photo>{
-        @Override
-        public int compare(Photo o1,Photo o2) {
-            return o1.getTagsSize() - o2.getTagsSize();
         }
     }
-
-    public void addSlidesFromVerticalPhotos(List<Slide> verticalSlides, List<Photo> verticalPhotos){
-        //Sort vertical photos by tags
-        Collections.sort(verticalPhotos, new PhotoComparer());
-        //Join the photos with the less number of tags with the ones with the most number of tags
-        int size = verticalPhotos.size();
-        for(int i = 0; i<size/2;i++){
-            verticalSlides.add(new Slide(verticalPhotos.get(i),verticalPhotos.get(size-1-i)));
-        }
-    }
-
-    /**
-     * We put first all vertical slides, then the horizontal ones.
-     * @param finalList
-     * @param list1
-     * @param list2
-     */
-    public void mixSlides(List<Slide> finalList, List<Slide> list1, List<Slide> list2){
-        for(Slide slide : list1){
-            finalList.add(slide);
-        }
-        for(Slide slide : list2){
-            finalList.add(slide);
-        }
-    }
-
 
     /**
      * For sorting vertical slides list
      */
-    class SlideComparer implements Comparator<Slide>{
+    class PhotoComparer implements Comparator<Photo>{
         @Override
-        public int compare(Slide o1,Slide o2) {
+        public int compare(Photo o1, Photo o2) {
             return o1.getTagsSize() - o2.getTagsSize();
         }
     }
-    public void greedyApproach(List<Slide> finalList, List<Slide> slides){
-        //Order the slides list:
-        Collections.sort(slides, new SlideComparer());
+
+    public void greedyApproach(List<Slide> finalList, List<Photo> photoList, List<Photo> verticalList){
+        Photo firstVerticalPhoto = new Photo(true,0, new HashSet<String>()); //Will never be necessary
         //Pick first slide
-        Slide currentSlide = slides.remove(0);
-        finalList.add(currentSlide);
-        while(!slides.isEmpty()){
-            //Compare with the last AMOUNT elements from the list. When there are less than AMOUNT elements, we keep substracting
-            int size = slides.size();
-            int toCompare = AMOUNT;
-            if(toCompare > size) toCompare = size;
-            int bestSlideScore = -1;
-            int bestSlideIndex = -1;
-            for(int i = size-1;i>=size-toCompare;i--){
-                if(currentSlide.giveScore(slides.get(i)) > bestSlideScore){
-                    bestSlideIndex = i;
-                    bestSlideScore = currentSlide.giveScore(slides.get(i));
+        Photo currentPhoto = photoList.remove(0);
+        boolean lastVertical = false;
+        if(currentPhoto.isVertical()){
+            lastVertical = true;
+        }else{
+            finalList.add(new Slide(currentPhoto));
+        }
+        System.out.println("Start greedy:");
+        int bestSlideScore = -1;
+        int bestPhotoIndex = -1;
+
+        while(!photoList.isEmpty()){
+            if(lastVertical){
+                //TODO: Buscar verticales (problema: cuando se acaben verticales)
+
+            }else{
+                int size = photoList.size();
+                int toCompare = min(AMOUNT,size);
+                bestSlideScore = -1;
+                bestPhotoIndex = -1;
+                for(int i = size-1;i>=size-toCompare;i--){
+                    int score = currentPhoto.giveScore(photoList.get(i));
+                    if(score > bestSlideScore){
+                        bestPhotoIndex = i;
+                        bestSlideScore = score;
+                    }
                 }
             }
-            //Select the best option as next slide
-            currentSlide = slides.remove(bestSlideIndex);
-            finalList.add(currentSlide);
+            currentPhoto = photoList.remove(bestPhotoIndex);
+            if(!currentPhoto.isVertical()){
+                finalList.add(new Slide(currentPhoto));
+            }else if(!lastVertical){
+                //1st verticaL
+                firstVerticalPhoto = currentPhoto;
+                lastVertical = true;
+                //TODO: eliminarla de la lista/set de verticales
+            }else{
+                //2nd vertical
+                finalList.add(new Slide(currentPhoto,firstVerticalPhoto));
+                lastVertical = false;
+                //TODO: eliminarla de la lista/set de verticales
+            }
+            //Si llevamos una vertical, poner lastVertical() a true para solo buscar verticales
+
         }
     }
 
@@ -165,68 +145,82 @@ public class Main {
         long totalTime = 0;
         long[] totalTimes = new long[5];
         int[] scores = new int[5];
-        final String[] fileNames = new String[]{"a_example","b_lovely_landscapes","c_memorable_moments","d_pet_pictures", "e_shiny_selfies"};
+        final String[] fileNames = new String[]{"b_lovely_landscapes"};
         Main main = new Main();
-        for (int i = 0;i<fileNames.length;i++) {
+        for (int i = 0; i < fileNames.length; i++) {
             String fileName = fileNames[i];
             long startTime = System.nanoTime();
 
-            //Load the photos: Verticals as Photo and Horizontals as Slides
-            List<Photo> verticalPhotos = new ArrayList<>();
-            List<Slide> horizontalSlides = new ArrayList<>();
-            main.readInput(System.getProperty("user.dir")+"/"+fileName+".txt", verticalPhotos, horizontalSlides);
-
-            //Create slides from vertical photos:
-            List<Slide> verticalSlides = new ArrayList<>();
-            main.addSlidesFromVerticalPhotos(verticalSlides, verticalPhotos);
-
-
-            //Mix the vertical slides with the horizontal ones in one list
-            List<Slide> slides = new ArrayList<>();
-            main.mixSlides(slides, verticalSlides, horizontalSlides);
+            //Load the photos
+            List<Photo> photoList = new ArrayList<>();
+            List<Photo> verticalList = new ArrayList<>();
+            main.readInput(System.getProperty("user.dir") + "/" + fileName + ".txt", photoList, verticalList);
 
             //Greedy approach:
             List<Slide> solutionSlides = new ArrayList<>();
-            main.greedyApproach(solutionSlides, slides);
+            main.greedyApproach(solutionSlides, photoList, verticalList);
 
             //Calculate elapsed time:
             long endTime = System.nanoTime();
             long durationInNano = (endTime - startTime);  //Total execution time in nano seconds
-            long durationInMilli = TimeUnit.NANOSECONDS.toMillis(durationInNano);
+            long durationInMilli = TimeUnit.NANOSECONDS.toSeconds(durationInNano);
             totalTimes[i] = durationInMilli;
             totalTime += durationInMilli;
 
+            /*
             //Calculate score:
             int score = 0;
-            for(int j = 0; j<solutionSlides.size()-1;j++){
-                score += solutionSlides.get(j).giveScore(solutionSlides.get(j+1));
+            for (int j = 0; j < solutionSlides.size() - 1; j++) {
+                score += solutionSlides.get(j).giveScore(solutionSlides.get(j + 1));
             }
             scores[i] = score;
             //Output solution:
-            main.outputSolution(solutionSlides, System.getProperty("user.dir")+"/"+fileName+"_sol_" + AMOUNT +"_"+durationInMilli +".txt");
+            main.outputSolution(solutionSlides, System.getProperty("user.dir") + "/" + fileName + "_sol_" + AMOUNT + "_" + durationInMilli + "NEW_ORDER.txt");
 
             //Print time and score:
-            System.out.println(fileName + ": " + durationInMilli + "ms | Score: " + score);
-        }
+            System.out.println(fileName + ": " + durationInMilli + "s | Score: " + score);
+            */
 
+            //Output solution:
+            main.outputSolution(solutionSlides, System.getProperty("user.dir") + "/" + fileName + "_sol_" + AMOUNT + "_" + durationInMilli + ".txt");
+
+            //Print time and score:
+            System.out.println(fileName + ": " + durationInMilli);
+        }
+        /*
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(System.getProperty("user.dir")+"/TimesLog/Times_with_AMOUNT="+AMOUNT+".txt", "UTF-8");
+            writer = new PrintWriter(System.getProperty("user.dir") + "/TimesLog/Times_with_AMOUNT=" + AMOUNT + ".txt", "UTF-8");
             writer.println("AMOUNT = " + AMOUNT);
             int totalScore = 0;
-            for(int i = 0;i<fileNames.length;i++){
-                writer.println(fileNames[i] + ": " + totalTimes[i] + "ms | Score: " + scores[i]);
+            for (int i = 0; i < fileNames.length; i++) {
+                writer.println(fileNames[i] + ": " + totalTimes[i] + "s | Score: " + scores[i]);
                 totalScore += scores[i];
             }
-            writer.println("Total time: " + totalTime + "ms | Total Score: " + totalScore);
+            writer.println("Total time: " + totalTime + "s | Total Score: " + totalScore);
             writer.close();
-            System.out.println("Total time: " + totalTime + "ms | Total Score: " + totalScore);
+            System.out.println("Total time: " + totalTime + "s | Total Score: " + totalScore);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        */
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(System.getProperty("user.dir") + "/TimesLog/Times_with_AMOUNT=" + AMOUNT + ".txt", "UTF-8");
+            writer.println("AMOUNT = " + AMOUNT);
+            for (int i = 0; i < fileNames.length; i++) {
+                writer.println(fileNames[i] + ": " + totalTimes[i]);
+            }
+            writer.println("Total time: " + totalTime);
+            writer.close();
+            System.out.println("Total time: " + totalTime);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
     }
-
-
 }
