@@ -69,52 +69,88 @@ public class Main {
         }
     }
 
+    private int giveScore(Slide slide, Photo photo){
+        Set<String> intersectionSet = new HashSet<>(slide.getTags());
+        intersectionSet.retainAll(photo.getTags());
+        int intersection = intersectionSet.size();
+        int subs1 = slide.getTagsSize() - intersection;
+        int subs2 = photo.getTagsSize() - intersection;
+        return min(min(intersection, subs1),subs2);
+    }
+
+    private int giveScore(Slide slide, Photo vertical1, Photo vertical2){
+        Set<String> verticalTags = new HashSet<>(vertical1.getTags());
+        verticalTags.addAll(vertical2.getTags());
+        Set<String> intersectionSet = new HashSet<>(slide.getTags());
+        intersectionSet.retainAll(verticalTags);
+        int intersection = intersectionSet.size();
+        int subs1 = slide.getTagsSize() - intersection;
+        int subs2 = verticalTags.size() - intersection;
+        return min(min(intersection, subs1),subs2);
+    }
+
     public void greedyApproach(List<Slide> finalList, List<Photo> photoList, List<Photo> verticalList){
-        Photo firstVerticalPhoto = new Photo(true,0, new HashSet<String>()); //Will never be necessary
-        //Pick first slide
-        Photo currentPhoto = photoList.remove(0);
-        boolean lastVertical = false;
-        if(currentPhoto.isVertical()){
-            lastVertical = true;
+        Photo firstVerticalPhoto = null;
+        Photo currentPhoto = photoList.remove(0);//Pick first photo
+        Slide lastSlide = null;
+        boolean lastVertical = false; //last photo picked is vertical?
+        if(currentPhoto.isVertical()){ //check if picked photo is vertical. if it isn't we add the horizontal to the solution
+            firstVerticalPhoto = currentPhoto;
+            verticalList.remove(currentPhoto);
+            currentPhoto = verticalList.remove(0);
+            photoList.remove(currentPhoto);
+            lastSlide = new Slide(firstVerticalPhoto, currentPhoto);
+            finalList.add(lastSlide);
         }else{
-            finalList.add(new Slide(currentPhoto));
+            lastSlide = new Slide(currentPhoto);
+            finalList.add(lastSlide);
         }
         System.out.println("Start greedy:");
-        int bestSlideScore = -1;
+        int size = 0;
+        int toCompare = 0;
+        int bestPhotoScore = -1;
         int bestPhotoIndex = -1;
-
         while(!photoList.isEmpty()){
-            if(lastVertical){
-                //TODO: Buscar verticales (problema: cuando se acaben verticales)
-
-            }else{
-                int size = photoList.size();
-                int toCompare = min(AMOUNT,size);
-                bestSlideScore = -1;
+            if(lastVertical){//We search for the second vertical:
+                size = verticalList.size();
+                toCompare = min(AMOUNT, size);
+                bestPhotoScore = -1;
                 bestPhotoIndex = -1;
                 for(int i = size-1;i>=size-toCompare;i--){
-                    int score = currentPhoto.giveScore(photoList.get(i));
-                    if(score > bestSlideScore){
+                    int score = giveScore(lastSlide,firstVerticalPhoto,verticalList.get(i));
+                    if(score > bestPhotoScore){
                         bestPhotoIndex = i;
-                        bestSlideScore = score;
+                        bestPhotoScore = score;
                     }
                 }
-            }
-            currentPhoto = photoList.remove(bestPhotoIndex);
-            if(!currentPhoto.isVertical()){
-                finalList.add(new Slide(currentPhoto));
-            }else if(!lastVertical){
-                //1st verticaL
-                firstVerticalPhoto = currentPhoto;
-                lastVertical = true;
-                //TODO: eliminarla de la lista/set de verticales
-            }else{
+                currentPhoto = verticalList.remove(bestPhotoIndex);
+                photoList.remove(currentPhoto);
                 //2nd vertical
-                finalList.add(new Slide(currentPhoto,firstVerticalPhoto));
+                lastSlide = new Slide(firstVerticalPhoto,currentPhoto);
+                finalList.add(lastSlide);
                 lastVertical = false;
-                //TODO: eliminarla de la lista/set de verticales
+            }else{
+                size = photoList.size();
+                toCompare = min(AMOUNT,size);
+                bestPhotoScore = -1;
+                bestPhotoIndex = -1;
+                for(int i = size-1;i>=size-toCompare;i--){
+                    int score = giveScore(lastSlide, photoList.get(i));
+                    if(score > bestPhotoScore){
+                        bestPhotoIndex = i;
+                        bestPhotoScore = score;
+                    }
+                }
+                currentPhoto = photoList.remove(bestPhotoIndex);
+                if(currentPhoto.isVertical()){
+                    firstVerticalPhoto = currentPhoto;
+                    verticalList.remove(currentPhoto);
+                    lastVertical = true;
+                }else{
+                    //Add to solution
+                    finalList.add(new Slide(currentPhoto));
+                }
             }
-            //Si llevamos una vertical, poner lastVertical() a true para solo buscar verticales
 
         }
     }
@@ -145,7 +181,7 @@ public class Main {
         long totalTime = 0;
         long[] totalTimes = new long[5];
         int[] scores = new int[5];
-        final String[] fileNames = new String[]{"b_lovely_landscapes"};
+        final String[] fileNames = new String[]{"c_memorable_moments"};
         Main main = new Main();
         for (int i = 0; i < fileNames.length; i++) {
             String fileName = fileNames[i];
